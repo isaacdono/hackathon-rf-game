@@ -1,13 +1,14 @@
 import serial
 import threading
 import time
+
 from typing import Optional, Callable
 
 
 class SerialReader:
     def __init__(
         self,
-        callback: Callable[[str], None],
+        callback: Callable[[str], None] = lambda _: None,
         port: str = "COM3",
         baudrate: int = 9600,
         timeout: Optional[float] = 1,
@@ -51,7 +52,7 @@ class SerialReader:
             except Exception as e:
                 print(f"Erro inesperado: {e}")
                 time.sleep(0.1)
-                
+
         print("Escuta da serial encerrada.")
 
     def start_listening(self) -> bool:
