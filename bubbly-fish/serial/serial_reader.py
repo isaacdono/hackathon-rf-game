@@ -27,7 +27,8 @@ class SerialReader:
             self.serial = serial.Serial(self.port, self.baudrate, timeout=self.timeout)
             print(f"Conectado à porta serial {self.port} com baudrate {self.baudrate}")
             return True
-        except serial.SerialException as e:
+        
+        except Exception as e:
             print(f"Erro ao conectar à porta serial {self.port}: {e}")
             self.serial = None
             return False
@@ -44,13 +45,9 @@ class SerialReader:
                 else:
                     time.sleep(0.01)  # Pequena pausa para não sobrecarregar a CPU
 
-            except serial.SerialException as e:
-                print(f"Erro durante a leitura da serial: {e}")
-                self.is_listening = False  # Parar de escutar em caso de erro grave
-                break
-
             except Exception as e:
                 print(f"Erro inesperado: {e}")
+                self.is_listening = False  # Parar de escutar em caso de erro grave
                 time.sleep(0.1)
 
         print("Escuta da serial encerrada.")
