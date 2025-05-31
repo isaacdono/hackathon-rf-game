@@ -1,17 +1,26 @@
 from machine import Pin, ADC
 import time
 
-sensor = ADC(0)  # ADC0 → GP26
-led = Pin(25, Pin.OUT)  # Onboard LED for debug
+sensor = ADC(0)  # GP26
+led = Pin(25, Pin.OUT)
 
-limiar = 750  # Ajuste conforme o comportamento do sensor
+limiar = 750
+estado_anterior = 0
 
+led.off()
 while True:
     valor_adc = sensor.read_u16() % 1024
-    # print(valor_adc)
     valor = 1 if valor_adc > limiar else 0
 
-    print(valor)  # Envia '1' ou '0' via serial
+    if valor == 1 and estado_anterior == 0:
+        print(1)
+        led.on()
+        # Após detectar, espera breve tempo para permitir novo sopro
+        time.sleep(0.2)  # Reduz para permitir "double tap"
+        estado_anterior = 0  # Força rearmar rápido
+    else:
+        print(0)
+        led.off()
+        estado_anterior = valor
 
-    led.toggle()
-    time.sleep(0.2)  # Ajuste o tempo conforme necessário
+    time.sleep(0.15)
