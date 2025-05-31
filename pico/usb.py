@@ -1,6 +1,6 @@
 import serial
 
-porta = 'COM3'  # Substitua pelo nome correto, ex.: COM4
+porta = 'COM10'  # Substitua pelo nome correto, ex.: COM4
 baudrate = 9600
 
 ser = serial.Serial(porta, baudrate, timeout=1)
