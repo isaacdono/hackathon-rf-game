@@ -117,48 +117,32 @@ class Game:
             self.pipe_group.update()
 
             # Check score
-            if len(self.pipe_group) > 0:
-                bird_sprite = self.bird_group.sprites()[0]
+            if (
+                not self.game_over and self.flying
+            ):  # Only check score if game is active and bird is flying
+                if len(self.pipe_group) > 0:
+                    bird_sprite = self.bird_group.sprites()[0]
+                    # The pipe relevant for scoring is the first one in the group (most to the left)
+                    pipe_to_score = self.pipe_group.sprites()[0]
 
-                for pipe_sprite in self.pipe_group.sprites():  
-                    if len(self.pipe_group) > 0:  # Re-check, as pipes can be killed
-                        current_pipe_to_check = self.pipe_group.sprites()[
-                            0
-                        ]  # Assumes this is the relevant pipe
-
+                    # Stage 1: Bird is entering the pipe's scoring zone
+                    # Set self.pass_pipe to True if the bird's front (left edge) has passed
+                    # the pipe's front (left edge), but not yet its back (right edge).
+                    if not self.pass_pipe:
                         if (
-                            bird_sprite.rect.left > current_pipe_to_check.rect.left
-                            and bird_sprite.rect.right
-                            > current_pipe_to_check.rect.right
-                            and not self.pass_pipe
-                            and current_pipe_to_check.rect.right < self.screen_width
-                        ): 
+                            bird_sprite.rect.left > pipe_to_score.rect.left
+                            and bird_sprite.rect.left < pipe_to_score.rect.right
+                        ):
+                            self.pass_pipe = True
 
-                            if not self.pass_pipe:
-                                
-                                if (
-                                    bird_sprite.rect.left
-                                    < current_pipe_to_check.rect.right
-                                    and bird_sprite.rect.right
-                                    > current_pipe_to_check.rect.left
-                                ):
-                                    # More precise: bird's front edge has passed pipe's front edge
-                                    if (
-                                        bird_sprite.rect.left
-                                        > current_pipe_to_check.rect.left
-                                    ):
-                                        self.pass_pipe = True  # Bird is now in the process of passing this pipe
+                    # Stage 2: Bird has completely passed the pipe
+                    # Increment score and reset self.pass_pipe if the bird's front (left edge)
+                    # has passed the pipe's back (right edge), and we were in "pass_pipe" state.
+                    if self.pass_pipe:
+                        if bird_sprite.rect.left > pipe_to_score.rect.right:
+                            self.score += 1
+                            self.pass_pipe = False
 
-                            if self.pass_pipe:
-                                # Stage 2: Bird's front edge has passed pipe's back edge
-                                if (
-                                    bird_sprite.rect.left
-                                    > current_pipe_to_check.rect.right
-                                ):
-                                    self.score += 1
-                                    self.pass_pipe = False  
-                        break  
-                    
             if (
                 pygame.sprite.groupcollide(
                     self.bird_group, self.pipe_group, False, False
