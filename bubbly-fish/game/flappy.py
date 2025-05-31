@@ -67,6 +67,10 @@ class Game:
         img = font.render(text, True, text_col)
         self.screen.blit(img, (x, y))
 
+    def handle_sensor(self, msg: str):
+        if msg and not self.flying and not self.game_over:
+            self.flying = True
+
     def _handle_events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:

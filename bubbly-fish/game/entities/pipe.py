@@ -2,6 +2,7 @@ import pygame
 
 from ..config import PIPE_GAP
 
+
 class Pipe(pygame.sprite.Sprite):
     def __init__(self, x, y, position, scroll_speed, image_path):
         pygame.sprite.Sprite.__init__(self)
@@ -18,4 +19,3 @@ class Pipe(pygame.sprite.Sprite):
         self.rect.x -= self.scroll_speed
         if self.rect.right < 0:
             self.kill()
-

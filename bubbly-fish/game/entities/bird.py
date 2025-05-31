@@ -1,6 +1,7 @@
 import os
 import pygame
 
+
 class Bird(pygame.sprite.Sprite):
     def __init__(self, x, y, image_path_prefix):
         pygame.sprite.Sprite.__init__(self)
