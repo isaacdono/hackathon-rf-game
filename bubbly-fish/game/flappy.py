@@ -52,7 +52,8 @@ class Game:
         self.flappy.rect.x = 100
         self.flappy.rect.y = int(self.screen_height / 2)
         self.flappy.vel = 0
-        self.flappy.clicked = False  # Reset clicked state for the bird
+        self.flappy.clicked = False
+        self.flappy.jump_requested = False  # Novo: resetar flag de pedido de pulo
         self.flappy.index = 0  # Reset bird animation
         self.flappy.image = self.flappy.images[self.flappy.index]  # Reset bird image
 
@@ -68,19 +69,20 @@ class Game:
         self.screen.blit(img, (x, y))
 
     def handle_sensor(self, msg: str):
-        if msg and not self.flying and not self.game_over:
-            self.flying = True
+        # Só processa o sinal do sensor se o jogo não estiver em game over
+        if msg and not self.game_over:
+            if not self.flying:  # Se o jogo não começou (pássaro parado)
+                self.flying = True  # Inicia o jogo
+            self.flappy.jump()  # Solicita um pulo ao pássaro
 
     def _handle_events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return False  # Signal to stop the game
-            if (
-                event.type == pygame.MOUSEBUTTONDOWN
-                and not self.flying
-                and not self.game_over
-            ):
-                self.flying = True
+            if event.type == pygame.MOUSEBUTTONDOWN and not self.game_over:
+                if not self.flying:  # Se o jogo não começou (pássaro parado)
+                    self.flying = True  # Inicia o jogo
+                self.flappy.jump()  # Solicita um pulo ao pássaro
         return True  # Signal to continue
 
     def _update_game_state(self):
@@ -88,7 +90,16 @@ class Game:
             if self.restart_button.draw(self.screen):
                 self._reset_game_state()
         else:
+            # Passa self.flying (se o jogo está ativo) e self.game_over
             self.bird_group.update(self.flying, self.game_over, self.ground_y_position)
+
+            # Lógica para permitir novo pulo após o pulo atual ter "terminado" (pássaro começa a cair)
+            # ou se o pássaro ainda não pulou desde que o pedido foi feito.
+            if (
+                self.flappy.jump_requested and self.flappy.vel > 0
+            ):  # Pássaro está caindo após um pulo
+                self.flappy.clicked = False
+                self.flappy.jump_requested = False
 
             if self.flying:
                 # Generate new pipes
@@ -159,6 +170,9 @@ class Game:
             if self.flappy.rect.bottom >= self.ground_y_position:
                 self.game_over = True
                 self.flying = False  # Stop flying if hit ground
+                # Garante que o pássaro não possa mais pular após bater no chão
+                self.flappy.clicked = True
+                self.flappy.jump_requested = False
 
     def _draw_elements(self):
         self.screen.blit(self.bg_img, (0, 0))
