@@ -52,8 +52,9 @@ class Game:
         self.flappy.rect.x = 100
         self.flappy.rect.y = int(self.screen_height / 2)
         self.flappy.vel = 0
-        self.flappy.clicked = False
-        self.flappy.jump_requested = False  # Novo: resetar flag de pedido de pulo
+        # self.flappy.clicked = False # Removido
+        # self.flappy.jump_requested = False # Removido
+        self.flappy.is_thrusting = False  # Resetar estado de impulso
         self.flappy.index = 0  # Reset bird animation
         self.flappy.image = self.flappy.images[self.flappy.index]  # Reset bird image
 
@@ -69,20 +70,31 @@ class Game:
         self.screen.blit(img, (x, y))
 
     def handle_sensor(self, msg: str):
-        # Só processa o sinal do sensor se o jogo não estiver em game over
-        if msg == '1' and not self.game_over:
-            if not self.flying:  # Se o jogo não começou (pássaro parado)
-                self.flying = True  # Inicia o jogo
-            self.flappy.jump()  # Solicita um pulo ao pássaro
+        # O sensor agora controla diretamente o estado de is_thrusting do pássaro
+        # Assumindo que msg '1' significa impulso e '0' (ou ausência) significa sem impulso.
+        # Esta lógica pode precisar de ajuste dependendo de como o SerialReader envia os dados.
+        if not self.game_over:
+            if msg == "1":  # Ou qualquer que seja o sinal de "ativo" do sensor
+                if not self.flying:  # Inicia o jogo no primeiro impulso
+                    self.flying = True
+                self.flappy.is_thrusting = True
+            else:  # Sensor não está ativo (ou enviou '0')
+                self.flappy.is_thrusting = False
 
     def _handle_events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return False  # Signal to stop the game
-            if event.type == pygame.MOUSEBUTTONDOWN and not self.game_over:
-                if not self.flying:  # Se o jogo não começou (pássaro parado)
-                    self.flying = True  # Inicia o jogo
-                self.flappy.jump()  # Solicita um pulo ao pássaro
+
+            # Lógica para o mouse controlar o impulso contínuo
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1 and not self.game_over:  # Botão esquerdo do mouse
+                    if not self.flying:
+                        self.flying = True
+                    self.flappy.is_thrusting = True
+            elif event.type == pygame.MOUSEBUTTONUP:
+                if event.button == 1:  # Botão esquerdo do mouse
+                    self.flappy.is_thrusting = False
         return True  # Signal to continue
 
     def _update_game_state(self):
@@ -90,16 +102,10 @@ class Game:
             if self.restart_button.draw(self.screen):
                 self._reset_game_state()
         else:
-            # Passa self.flying (se o jogo está ativo) e self.game_over
             self.bird_group.update(self.flying, self.game_over, self.ground_y_position)
 
-            # Lógica para permitir novo pulo após o pulo atual ter "terminado" (pássaro começa a cair)
-            # ou se o pássaro ainda não pulou desde que o pedido foi feito.
-            if (
-                self.flappy.jump_requested and self.flappy.vel > 0
-            ):  # Pássaro está caindo após um pulo
-                self.flappy.clicked = False
-                self.flappy.jump_requested = False
+            # A lógica de reset de clicked/jump_requested é removida daqui,
+            # pois o impulso é contínuo e gerenciado por is_thrusting.
 
             if self.flying:
                 # Generate new pipes
@@ -170,9 +176,7 @@ class Game:
             if self.flappy.rect.bottom >= self.ground_y_position:
                 self.game_over = True
                 self.flying = False  # Stop flying if hit ground
-                # Garante que o pássaro não possa mais pular após bater no chão
-                self.flappy.clicked = True
-                self.flappy.jump_requested = False
+                self.flappy.is_thrusting = False  # Para o impulso se bater no chão
 
     def _draw_elements(self):
         self.screen.blit(self.bg_img, (0, 0))
