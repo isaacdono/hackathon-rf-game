@@ -1,10 +1,10 @@
 from game.flappy import Game
-from serial.serial_reader import SerialReader
+from sensor.serial_reader import SerialReader
 
 if __name__ == "__main__":
     game = Game()
     serial = SerialReader(game.handle_sensor)
-    
+
     serial.start_listening()
     game.run()
 
