@@ -70,7 +70,7 @@ class Game:
 
     def handle_sensor(self, msg: str):
         # Só processa o sinal do sensor se o jogo não estiver em game over
-        if msg and not self.game_over:
+        if msg == '1' and not self.game_over:
             if not self.flying:  # Se o jogo não começou (pássaro parado)
                 self.flying = True  # Inicia o jogo
             self.flappy.jump()  # Solicita um pulo ao pássaro
