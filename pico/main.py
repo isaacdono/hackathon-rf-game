@@ -4,13 +4,13 @@ import time
 sensor = ADC(0)  # GP26
 led = Pin(25, Pin.OUT)
 
-limiar = 750
+LIMIAR = 750
 estado_anterior = 0
 
 led.off()
 while True:
     valor_adc = sensor.read_u16() % 1024
-    valor = 1 if valor_adc > limiar else 0
+    valor = 1 if valor_adc > LIMIAR else 0
 
     if valor == 1 and estado_anterior == 0:
         print(1)

@@ -10,7 +10,7 @@ class SerialReader:
         self,
         callback: Callable[[str], None] = lambda _: None,
         port: str = "COM3",
-        baudrate: int = 9600,
+        baudrate: int = 115200,
         timeout: Optional[float] = 1,
     ):
         self.port: str = port
