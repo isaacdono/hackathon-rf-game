@@ -1,5 +1,5 @@
-from .bird import Bird
+from .fish import Fish
 from .button import Button
 from .pipe import Pipe
 
-__all__ = ["Bird", "Button", "Pipe"]
+__all__ = ["Fish", "Button", "Pipe"]

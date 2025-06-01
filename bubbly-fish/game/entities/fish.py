@@ -2,18 +2,29 @@ import os
 import pygame
 
 
-class Bird(pygame.sprite.Sprite):
+class Fish(pygame.sprite.Sprite):
     def __init__(self, x, y, image_path_prefix):
         pygame.sprite.Sprite.__init__(self)
         self.images = []
         self.index = 0
         self.counter = 0
         for num in range(1, 4):
-            img_path = os.path.join(image_path_prefix, f"bird{num}.png")
-            self.images.append(pygame.image.load(img_path))
+            img_path = os.path.join(image_path_prefix, f"fish{num}.png")
+            img = pygame.image.load(img_path)
+            self.images.append(
+                pygame.transform.scale(img, (img.get_width() * 2.2, img.get_height() * 2.2))
+            )
         self.image = self.images[self.index]
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
+
+        # Reduzir o rect de colisão em 15%
+        reduction_percentage = 0.15
+        original_center = self.rect.center
+        self.rect.width = int(self.rect.width * (1 - reduction_percentage))
+        self.rect.height = int(self.rect.height * (1 - reduction_percentage))
+        self.rect.center = original_center
+
         self.vel = 0
         self.is_thrusting = False  # Novo: True se o botão/sensor estiver pressionado
 

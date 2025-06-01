@@ -20,7 +20,7 @@ class Game:
         self.ground_y_position = 768  # Y position of the ground
 
         self.screen = pygame.display.set_mode((self.screen_width, self.screen_height))
-        pygame.display.set_caption("Flappy Bird OOP")
+        pygame.display.set_caption("Bubbly Fish")
         self.clock = pygame.time.Clock()
 
         self.font = pygame.font.SysFont("Bauhaus 93", 60)
@@ -31,8 +31,45 @@ class Game:
         self._reset_game_state()  # Initialize game state variables
 
     def _load_images(self):
-        self.bg_img = pygame.image.load(os.path.join(IMG_DIR, "bg.png"))
-        self.ground_img = pygame.image.load(os.path.join(IMG_DIR, "ground.png"))
+        self.bg_img = pygame.transform.scale(
+            pygame.image.load(os.path.join(IMG_DIR, "bg.png")),
+            (self.screen_width, self.screen_height),
+        )
+
+        midground_original_img = pygame.image.load(
+            os.path.join(IMG_DIR, "midground.png")
+        )
+        original_width = midground_original_img.get_width()
+        original_height = midground_original_img.get_height()
+
+        self.midground_img = pygame.transform.scale(
+            midground_original_img,
+            (
+                int(self.screen_height * original_width / original_height),
+                self.screen_height,
+            ),
+        )
+
+        original_ground_img = pygame.image.load(os.path.join(IMG_DIR, "ground.png"))
+        original_ground_width = original_ground_img.get_width()
+        original_ground_height = original_ground_img.get_height()
+
+        new_ground_height = self.screen_height - self.ground_y_position
+
+        if original_ground_height > 0:
+            new_ground_width = int(
+                new_ground_height * original_ground_width / original_ground_height
+            )
+
+        else:  # Default to original width if height is 0
+            new_ground_width = original_ground_width
+            new_ground_height = original_ground_height
+
+        # Scale the ground image
+        self.ground_img = pygame.transform.scale(
+            original_ground_img, (new_ground_width, new_ground_height)
+        )
+
         self.button_img = pygame.image.load(os.path.join(IMG_DIR, "restart.png"))
         self.pipe_img_path = os.path.join(IMG_DIR, "pipe.png")
 
@@ -62,6 +99,7 @@ class Game:
         self.flying = False
         self.game_over = False
         self.ground_scroll = 0
+        self.midground_scroll = 0  # Initialize midground scroll
         self.last_pipe = pygame.time.get_ticks() - self.pipe_frequency
         self.pass_pipe = False
 
@@ -132,8 +170,18 @@ class Game:
 
                 # Scroll the ground
                 self.ground_scroll -= self.scroll_speed
-                if abs(self.ground_scroll) > 35:
+                if (
+                    abs(self.ground_scroll)
+                    > self.ground_img.get_width()  # Use a largura da imagem do chão
+                ):
                     self.ground_scroll = 0
+
+                # Scroll the midground
+                self.midground_scroll -= (
+                    self.scroll_speed * 0.5
+                )  # Slower speed for parallax
+                if abs(self.midground_scroll) > self.midground_img.get_width():
+                    self.midground_scroll = 0
 
             self.pipe_group.update()
 
@@ -180,9 +228,39 @@ class Game:
 
     def _draw_elements(self):
         self.screen.blit(self.bg_img, (0, 0))
+
+        # Draw midground (scrolling)
+        # Position it, for example, aligned with the ground or slightly above
+        # Adjust midground_y_position as needed based on your image and desired placement
+        midground_y_position = (
+            self.ground_y_position - self.midground_img.get_height() + 50
+        )  # Example: 50px above ground bottom
+
+        self.screen.blit(
+            self.midground_img, (self.midground_scroll, midground_y_position)
+        )
+        self.screen.blit(
+            self.midground_img,
+            (
+                self.midground_scroll + self.midground_img.get_width(),
+                midground_y_position,
+            ),
+        )
+
         self.pipe_group.draw(self.screen)
         self.bird_group.draw(self.screen)
-        self.screen.blit(self.ground_img, (self.ground_scroll, self.ground_y_position))
+
+        # Draw scrolling ground using multiple tiles
+        ground_width = self.ground_img.get_width()
+        num_tiles = (
+            self.screen_width // ground_width
+        ) + 2  # +2 para garantir cobertura durante a rolagem
+        for i in range(num_tiles):
+            self.screen.blit(
+                self.ground_img,
+                (self.ground_scroll + i * ground_width, self.ground_y_position),
+            )
+
         self._draw_text(
             str(self.score), self.font, self.white_color, int(self.screen_width / 2), 20
         )
