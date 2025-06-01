@@ -12,11 +12,14 @@ class Fish(pygame.sprite.Sprite):
             img_path = os.path.join(image_path_prefix, f"fish{num}.png")
             img = pygame.image.load(img_path)
             self.images.append(
-                pygame.transform.scale(img, (img.get_width() * 2.2, img.get_height() * 2.2))
+                pygame.transform.scale(
+                    img, (img.get_width() * 2.2, img.get_height() * 2.2)
+                )
             )
         self.image = self.images[self.index]
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
+        self.mask = pygame.mask.from_surface(self.image)  # Inicializa a máscara
 
         # Reduzir o rect de colisão em 15%
         reduction_percentage = 0.15
@@ -73,6 +76,8 @@ class Fish(pygame.sprite.Sprite):
                 self.image = pygame.transform.rotate(
                     self.images[self.index], max(self.vel * -3, -90)
                 )
+            self.mask = pygame.mask.from_surface(self.image)  # Atualiza a máscara após rotação/animação
         else:  # is_game_over == True
             self.image = pygame.transform.rotate(self.images[self.index], -90)
+            self.mask = pygame.mask.from_surface(self.image)  # Atualiza a máscara no game over
             self.is_thrusting = False  # Garante que o impulso pare no game over

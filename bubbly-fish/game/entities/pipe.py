@@ -14,6 +14,8 @@ class Pipe(pygame.sprite.Sprite):
             self.rect.bottomleft = (x, y - int(PIPE_GAP / 2))
         if position == -1:  # Bottom pipe
             self.rect.topleft = (x, y + int(PIPE_GAP / 2))
+        
+        self.mask = pygame.mask.from_surface(self.image) # Cria a máscara para o cano
 
     def update(self):
         self.rect.x -= self.scroll_speed
