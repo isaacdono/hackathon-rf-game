@@ -113,6 +113,7 @@ class Game:
         # Esta lógica pode precisar de ajuste dependendo de como o SerialReader envia os dados.
         if not self.game_over:
             if msg == "1":  # Ou qualquer que seja o sinal de "ativo" do sensor
+                print("sensor ativado")
                 if not self.flying:  # Inicia o jogo no primeiro impulso
                     self.flying = True
                 self.bubbly.is_thrusting = True

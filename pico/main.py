@@ -4,7 +4,7 @@ import time
 sensor = ADC(0)  # GP26
 led = Pin(25, Pin.OUT)
 
-LIMIAR = 750
+LIMIAR = 500
 estado_anterior = 0
 
 led.off()
