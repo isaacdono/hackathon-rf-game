@@ -24,6 +24,7 @@ O jogador interage soprando no sensor, enviando dados para o jogo via comunicaç
 
 - Arquivos principais em `bubbly-fish/game/`.
 - O jogo é feito em Python com Pygame, simulando um peixe que deve "nadar" evitando obstáculos.
+  -  A base do jogo é uma implementação do Flappy Bird obtida na Internet, adaptamos e transformamos no Bubbly Fish
 - A interação principal ocorre quando o sensor detecta um sopro ou clique, fazendo o peixe subir.
 - O hub de jogos (`bubbly-fish/hub.py`) permite iniciar o Bubbly Fish e, futuramente, outros minigames.
 
