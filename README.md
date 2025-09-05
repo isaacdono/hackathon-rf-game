@@ -42,7 +42,7 @@ O jogador interage soprando no sensor, enviando dados para o jogo via comunicaç
 ## Requisitos
 
 - Raspberry Pi Pico
-- Sensor analógico (ex: sensor de sopro) ou botão
+- Sensor de pressão
 - Python 3.x + Pygame no PC
 - Bibliotecas: `pyserial`, `pygame`
 
